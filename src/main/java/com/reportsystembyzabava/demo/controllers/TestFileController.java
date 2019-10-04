@@ -17,6 +17,6 @@ public class TestFileController {
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String start() {
-        return "Start.html";
+        return "Start";
     }
 }
