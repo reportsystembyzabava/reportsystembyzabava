@@ -5,17 +5,17 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
 @Entity
-public class Chat {
+public class ChatEntity {
     @Id
     @GeneratedValue
     private Long id;
     private String name;
 
-    public Chat(String name) {
+    public ChatEntity(String name) {
         this.name = name;
     }
 
-    public Chat() {
+    public ChatEntity() {
     }
 
     public Long getId() {

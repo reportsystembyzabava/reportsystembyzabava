@@ -1,4 +1,4 @@
 package com.reportsystembyzabava.demo.entity;
 
-public class File {
+public class UserEntiry {
 }

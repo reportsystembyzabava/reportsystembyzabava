@@ -1,4 +1,4 @@
 package com.reportsystembyzabava.demo.entity;
 
-public class User {
+public class FileEntity {
 }
