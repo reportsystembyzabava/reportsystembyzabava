@@ -2,12 +2,10 @@ package com.reportsystembyzabava.demo.controllers;
 
 
 import com.reportsystembyzabava.demo.entity.FileEntity;
-import com.reportsystembyzabava.demo.entity.UserEntity;
 import com.reportsystembyzabava.demo.jpaRepositorys.ChatJpaRepository;
 import com.reportsystembyzabava.demo.jpaRepositorys.FileJpaRepository;
 import com.reportsystembyzabava.demo.jpaRepositorys.UserJpaRepository;
-import com.reportsystembyzabava.demo.servise.fileHandler.FileHandlerImp;
-import org.postgresql.util.PSQLException;
+import com.reportsystembyzabava.demo.servise.fileHandler.FileHash;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
@@ -17,6 +15,8 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 @Controller
 public class TestFileController {
@@ -54,29 +54,19 @@ public class TestFileController {
     @RequestMapping(value = "upload", method = RequestMethod.POST)
     public @ResponseBody
     String handlerFileUpload(@ModelAttribute("file") MultipartFile file) {
-        System.out.println(new FileHandlerImp().checkSum(file));
-        FileEntity fileEntity = new FileEntity(new FileHandlerImp().checkSum(file));
-
         try {
-            userJpaRepository.save(new UserEntity(file.getBytes()));
+            FileEntity fileEntity = new FileEntity().setNameForUsers(file.getOriginalFilename())
+                    .setSize(file.getSize()).setCheckSum(FileHash.checkSum(file, MessageDigest.getInstance("SHA-256")))
+                    .setFile(file.getBytes());
+            fileJpaRepository.save(fileEntity);
+
+        } catch (DataIntegrityViolationException e) {
+            return "file already loaded";
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        try {
-            fileJpaRepository.save(fileEntity);
-            fileJpaRepository.save(fileEntity.setNameForUsers(file.getOriginalFilename())
-                    .setnameInStorage(new FileHandlerImp().saveFile(file)).setSize(file.getSize()));
-        } catch (DataIntegrityViolationException e) {
-            return "file already loaded";
-        } catch (Exception e) {
-            if (e.getClass() != (PSQLException.class)) {
-                System.out.println(e.getClass());
-                throw e;
-            } else {
-                return "file already loaded";
-            }
-        }
-
         return "ok";
     }
 

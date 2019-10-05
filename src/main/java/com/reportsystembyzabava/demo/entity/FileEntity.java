@@ -11,10 +11,11 @@ public class FileEntity {
     @Id
     private Long id;
     private String nameForUsers;
-    private String nameInStorage;
+
     @Column(unique = true)
     private String checkSum;
     private Long size;
+    private byte[] file;
 
     public FileEntity() {
     }
@@ -23,12 +24,6 @@ public class FileEntity {
         this.checkSum = checkSum;
     }
 
-    public FileEntity(String nameForUsers, String nameInStorage, String checkSum, Long size) {
-        this.nameForUsers = nameForUsers;
-        this.nameInStorage = nameInStorage;
-        this.checkSum = checkSum;
-        this.size = size;
-    }
 
     public Long getId() {
         return id;
@@ -48,14 +43,6 @@ public class FileEntity {
         return this;
     }
 
-    public String getnameInStorage() {
-        return nameInStorage;
-    }
-
-    public FileEntity setnameInStorage(String nameInStorage) {
-        this.nameInStorage = nameInStorage;
-        return this;
-    }
 
     public Long getSize() {
         return size;
@@ -72,6 +59,16 @@ public class FileEntity {
 
     public FileEntity setSize(Long size) {
         this.size = size;
+        return this;
+    }
+
+
+    public byte[] getFile() {
+        return file;
+    }
+
+    public FileEntity setFile(byte[] file) {
+        this.file = file;
         return this;
     }
 }
