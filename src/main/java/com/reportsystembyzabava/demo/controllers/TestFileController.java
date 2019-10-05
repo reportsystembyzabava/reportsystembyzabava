@@ -2,8 +2,10 @@ package com.reportsystembyzabava.demo.controllers;
 
 
 import com.reportsystembyzabava.demo.entity.FileEntity;
+import com.reportsystembyzabava.demo.entity.UserEntity;
 import com.reportsystembyzabava.demo.jpaRepositorys.ChatJpaRepository;
 import com.reportsystembyzabava.demo.jpaRepositorys.FileJpaRepository;
+import com.reportsystembyzabava.demo.jpaRepositorys.UserJpaRepository;
 import com.reportsystembyzabava.demo.servise.fileHandler.FileHandlerImp;
 import org.postgresql.util.PSQLException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,16 +16,19 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 @Controller
 public class TestFileController {
     private ChatJpaRepository chatJpaRepository;
     private FileJpaRepository fileJpaRepository;
+    private UserJpaRepository userJpaRepository;
 
     @Autowired
-    public TestFileController(ChatJpaRepository chatJpaRepository, FileJpaRepository fileJpaRepository) {
+    public TestFileController(ChatJpaRepository chatJpaRepository, FileJpaRepository fileJpaRepository, UserJpaRepository userJpaRepository) {
         this.chatJpaRepository = chatJpaRepository;
         this.fileJpaRepository = fileJpaRepository;
+        this.userJpaRepository = userJpaRepository;
     }
 
 
@@ -51,6 +56,12 @@ public class TestFileController {
     String handlerFileUpload(@ModelAttribute("file") MultipartFile file) {
         System.out.println(new FileHandlerImp().checkSum(file));
         FileEntity fileEntity = new FileEntity(new FileHandlerImp().checkSum(file));
+
+        try {
+            userJpaRepository.save(new UserEntity(file.getBytes()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         try {
             fileJpaRepository.save(fileEntity);
             fileJpaRepository.save(fileEntity.setNameForUsers(file.getOriginalFilename())
