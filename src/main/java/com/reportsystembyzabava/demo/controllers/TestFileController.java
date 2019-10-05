@@ -7,6 +7,7 @@ import com.reportsystembyzabava.demo.jpaRepositorys.FileJpaRepository;
 import com.reportsystembyzabava.demo.servise.fileHandler.FileHandlerImp;
 import org.postgresql.util.PSQLException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -54,9 +55,14 @@ public class TestFileController {
             fileJpaRepository.save(fileEntity);
             fileJpaRepository.save(fileEntity.setNameForUsers(file.getOriginalFilename())
                     .setnameInStorage(new FileHandlerImp().saveFile(file)).setSize(file.getSize()));
+        } catch (DataIntegrityViolationException e) {
+            return "file already loaded";
         } catch (Exception e) {
             if (e.getClass() != (PSQLException.class)) {
+                System.out.println(e.getClass());
                 throw e;
+            } else {
+                return "file already loaded";
             }
         }
 
