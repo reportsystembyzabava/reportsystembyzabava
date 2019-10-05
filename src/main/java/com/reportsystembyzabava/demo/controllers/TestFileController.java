@@ -1,9 +1,11 @@
 package com.reportsystembyzabava.demo.controllers;
 
 
+import com.reportsystembyzabava.demo.entity.FileEntity;
 import com.reportsystembyzabava.demo.jpaRepositorys.ChatJpaRepository;
-import com.reportsystembyzabava.demo.servise.fileHandler.FileHandler;
+import com.reportsystembyzabava.demo.jpaRepositorys.FileJpaRepository;
 import com.reportsystembyzabava.demo.servise.fileHandler.FileHandlerImp;
+import org.postgresql.util.PSQLException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -15,11 +17,14 @@ import javax.servlet.http.HttpServletResponse;
 @Controller
 public class TestFileController {
     private ChatJpaRepository chatJpaRepository;
+    private FileJpaRepository fileJpaRepository;
 
     @Autowired
-    public TestFileController(ChatJpaRepository chatJpaRepository) {
+    public TestFileController(ChatJpaRepository chatJpaRepository, FileJpaRepository fileJpaRepository) {
         this.chatJpaRepository = chatJpaRepository;
+        this.fileJpaRepository = fileJpaRepository;
     }
+
 
     public TestFileController() {
     }
@@ -43,9 +48,19 @@ public class TestFileController {
     @RequestMapping(value = "upload", method = RequestMethod.POST)
     public @ResponseBody
     String handlerFileUpload(@ModelAttribute("file") MultipartFile file) {
+        System.out.println(new FileHandlerImp().checkSum(file));
+        FileEntity fileEntity = new FileEntity(new FileHandlerImp().checkSum(file));
+        try {
+            fileJpaRepository.save(fileEntity);
+            fileJpaRepository.save(fileEntity.setNameForUsers(file.getOriginalFilename())
+                    .setnameInStorage(new FileHandlerImp().saveFile(file)).setSize(file.getSize()));
+        } catch (Exception e) {
+            if (e.getClass() != (PSQLException.class)) {
+                throw e;
+            }
+        }
 
-
-        return new FileHandlerImp().saveFile(file);
+        return "ok";
     }
 
 }

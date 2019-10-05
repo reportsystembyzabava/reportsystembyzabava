@@ -16,4 +16,6 @@ public interface FileHandler {
 
     List<MultipartFile> findAllFiles();
 
+    String checkSum(MultipartFile file);
+
 }
