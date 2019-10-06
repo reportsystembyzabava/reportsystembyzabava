@@ -1,26 +1,28 @@
 package com.reportsystembyzabava.demo.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.Set;
 
 @Entity
-public class FileEntity {
-    @GeneratedValue
+@Table(name = "file")
+public class File {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String nameForUsers;
 
     @Column(unique = true)
     private String checkSum;
     private Long size;
+    @Column(name = "file_bytes")
     private byte[] file;
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private Set<Chat> chatSet;
 
-    public FileEntity() {
+    public File() {
     }
 
-    public FileEntity(String checkSum) {
+    public File(String checkSum) {
         this.checkSum = checkSum;
     }
 
@@ -29,7 +31,7 @@ public class FileEntity {
         return id;
     }
 
-    public FileEntity setId(Long id) {
+    public File setId(Long id) {
         this.id = id;
         return this;
     }
@@ -38,7 +40,7 @@ public class FileEntity {
         return nameForUsers;
     }
 
-    public FileEntity setNameForUsers(String nameForUsers) {
+    public File setNameForUsers(String nameForUsers) {
         this.nameForUsers = nameForUsers;
         return this;
     }
@@ -52,12 +54,12 @@ public class FileEntity {
         return checkSum;
     }
 
-    public FileEntity setCheckSum(String checkSum) {
+    public File setCheckSum(String checkSum) {
         this.checkSum = checkSum;
         return this;
     }
 
-    public FileEntity setSize(Long size) {
+    public File setSize(Long size) {
         this.size = size;
         return this;
     }
@@ -67,8 +69,17 @@ public class FileEntity {
         return file;
     }
 
-    public FileEntity setFile(byte[] file) {
+    public File setFile(byte[] file) {
         this.file = file;
+        return this;
+    }
+
+    public Set<Chat> getChatSet() {
+        return chatSet;
+    }
+
+    public File setChatSet(Set<Chat> chatSet) {
+        this.chatSet = chatSet;
         return this;
     }
 }

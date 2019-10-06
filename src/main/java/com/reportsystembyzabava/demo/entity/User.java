@@ -1,22 +1,21 @@
 package com.reportsystembyzabava.demo.entity;
 
 import javax.persistence.*;
-import java.io.File;
 
 @Entity
-@Table(name = "UserTable")
-public class UserEntity {
-    @GeneratedValue
+@Table(name = "users_table")
+public class User {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @Column(length = 130000000)
     private byte[] file;
 
-    public UserEntity() {
+    public User() {
     }
 
-    public UserEntity(byte[] file) {
+    public User(byte[] file) {
         this.file = file;
     }
 

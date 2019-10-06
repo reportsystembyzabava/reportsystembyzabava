@@ -1,7 +1,7 @@
 package com.reportsystembyzabava.demo.controllers;
 
 
-import com.reportsystembyzabava.demo.entity.FileEntity;
+import com.reportsystembyzabava.demo.entity.File;
 import com.reportsystembyzabava.demo.jpaRepositorys.ChatJpaRepository;
 import com.reportsystembyzabava.demo.jpaRepositorys.FileJpaRepository;
 import com.reportsystembyzabava.demo.jpaRepositorys.UserJpaRepository;
@@ -49,16 +49,16 @@ public class TestFileController {
 
     @RequestMapping(value = "download", method = RequestMethod.GET)
     public ResponseEntity<InputStreamResource> handlerFileDownload() {
-        FileEntity fileEntity = fileJpaRepository.findAllById(Collections.singleton(1L)).get(0);
-        InputStreamResource resource = new InputStreamResource(new ByteArrayInputStream(fileEntity.getFile()));
-        MediaType mediaType = MediaType.valueOf("application/" + fileEntity.getNameForUsers().substring(fileEntity.getNameForUsers().indexOf('.')));
+        File file = fileJpaRepository.findAllById(Collections.singleton(1L)).get(0);
+        InputStreamResource resource = new InputStreamResource(new ByteArrayInputStream(file.getFile()));
+        MediaType mediaType = MediaType.valueOf("application/" + file.getNameForUsers().substring(file.getNameForUsers().indexOf('.')));
         return ResponseEntity.ok()
                 // Content-Disposition
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + fileEntity.getNameForUsers())
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + file.getNameForUsers())
                 // Content-Type
                 .contentType(mediaType)
                 // Contet-Length
-                .contentLength(fileEntity.getSize()) //
+                .contentLength(file.getSize()) //
                 .body(resource);
     }
 
@@ -78,7 +78,7 @@ public class TestFileController {
     String handlerFileUpload(@ModelAttribute("file") MultipartFile file) {
         System.out.println(file.getClass());
         try {
-            FileEntity fileEntity = new FileEntity().setNameForUsers(file.getOriginalFilename())
+            File fileEntity = new File().setNameForUsers(file.getOriginalFilename())
                     .setSize(file.getSize()).setCheckSum(FileHash.checkSum(file, MessageDigest.getInstance("SHA-256")))
                     .setFile(file.getBytes());
             fileJpaRepository.save(fileEntity);
