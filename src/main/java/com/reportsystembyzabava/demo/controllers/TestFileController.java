@@ -76,13 +76,11 @@ public class TestFileController {
     @RequestMapping(value = "upload", method = RequestMethod.POST)
     public @ResponseBody
     String handlerFileUpload(@ModelAttribute("file") MultipartFile file) {
-        System.out.println(file.getClass());
         try {
             File fileEntity = new File().setNameForUsers(file.getOriginalFilename())
                     .setSize(file.getSize()).setCheckSum(FileHash.checkSum(file, MessageDigest.getInstance("SHA-256")))
                     .setFile(file.getBytes());
             fileJpaRepository.save(fileEntity);
-
         } catch (DataIntegrityViolationException e) {
             return "file already loaded";
         } catch (NoSuchAlgorithmException e) {
