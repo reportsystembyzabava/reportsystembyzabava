@@ -5,6 +5,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -13,68 +14,34 @@ import java.security.NoSuchAlgorithmException;
 public final class FileHash {
 
     public static String checkSum(MultipartFile file, MessageDigest md) throws IOException {
-        //file hashing with DigestInputStream
-        try (DigestInputStream dis = new DigestInputStream(file.getInputStream(), md)) {
-            while (dis.read() != -1) ;//empty loop to clear the data
-            md = dis.getMessageDigest();
-        }
-
-        //bytes to hex
-        StringBuilder result = new StringBuilder();
-        for (byte b : md.digest()) {
-            result.append(String.format("%02x", b));
-        }
-
-        return result.toString();
+        return checkSumIn(file.getInputStream(), md);
     }
 
     public static String checkSum(File file, MessageDigest md) throws IOException {
-        //file hashing with DigestInputStream
-        try (DigestInputStream dis = new DigestInputStream(new FileInputStream(file), md)) {
-            while (dis.read() != -1) ;//empty loop to clear the data
-            md = dis.getMessageDigest();
-        }
-
-        //bytes to hex
-        StringBuilder result = new StringBuilder();
-        for (byte b : md.digest()) {
-            result.append(String.format("%02x", b));
-        }
-
-        return result.toString();
+        return checkSumIn(new FileInputStream(file), md);
     }
 
     public static String checkSum(MultipartFile file) throws IOException, NoSuchAlgorithmException {
-
-        //file hashing with DigestInputStream
-        MessageDigest md = MessageDigest.getInstance("SHA-256");
-        try (DigestInputStream dis = new DigestInputStream(file.getInputStream(), md)) {
-            while (dis.read() != -1) ;//empty loop to clear the data
-            md = dis.getMessageDigest();
-        }
-
-        //bytes to hex
-        StringBuilder result = new StringBuilder();
-        for (byte b : md.digest()) {
-            result.append(String.format("%02x", b));
-        }
-
-        return result.toString();
+        return checkSumIn(file.getInputStream(), MessageDigest.getInstance("SHA-256"));
     }
+
     public static String checkSum(File file) throws IOException, NoSuchAlgorithmException {
-        //file hashing with DigestInputStream
-        MessageDigest md=MessageDigest.getInstance("SHA-256");
-        try (DigestInputStream dis = new DigestInputStream(new FileInputStream(file), md)) {
+        return checkSumIn(new FileInputStream(file), MessageDigest.getInstance("SHA-256"));
+    }
+
+    private static String checkSumIn(InputStream inputStream, MessageDigest messageDigest) {
+        try (DigestInputStream dis = new DigestInputStream(inputStream, messageDigest)) {
             while (dis.read() != -1) ;//empty loop to clear the data
-            md = dis.getMessageDigest();
+            messageDigest = dis.getMessageDigest();
+            //bytes to hex
+            StringBuilder result = new StringBuilder();
+            for (byte b : messageDigest.digest()) {
+                result.append(String.format("%02x", b));
+            }
+            return result.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return e.getMessage();
         }
-
-        //bytes to hex
-        StringBuilder result = new StringBuilder();
-        for (byte b : md.digest()) {
-            result.append(String.format("%02x", b));
-        }
-
-        return result.toString();
     }
 }
