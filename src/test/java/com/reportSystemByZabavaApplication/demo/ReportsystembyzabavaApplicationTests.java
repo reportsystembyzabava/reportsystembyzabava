@@ -1,4 +1,4 @@
-package com.reportsystembyzabava.demo;
+package com.reportSystemByZabavaApplication.demo;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

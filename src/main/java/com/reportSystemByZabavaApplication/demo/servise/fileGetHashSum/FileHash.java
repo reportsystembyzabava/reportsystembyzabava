@@ -1,4 +1,4 @@
-package com.reportsystembyzabava.demo.servise.fileHandler;
+package com.reportSystemByZabavaApplication.demo.servise.fileGetHashSum;
 
 import org.springframework.web.multipart.MultipartFile;
 

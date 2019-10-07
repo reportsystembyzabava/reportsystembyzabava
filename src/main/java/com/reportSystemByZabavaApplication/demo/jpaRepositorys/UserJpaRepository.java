@@ -1,6 +1,6 @@
-package com.reportsystembyzabava.demo.jpaRepositorys;
+package com.reportSystemByZabavaApplication.demo.jpaRepositorys;
 
-import com.reportsystembyzabava.demo.entity.User;
+import com.reportSystemByZabavaApplication.demo.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface UserJpaRepository extends JpaRepository<User, Long> {

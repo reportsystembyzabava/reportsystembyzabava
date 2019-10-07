@@ -1,11 +1,11 @@
-package com.reportsystembyzabava.demo.controllers;
+package com.reportSystemByZabavaApplication.demo.controllers;
 
 
-import com.reportsystembyzabava.demo.entity.File;
-import com.reportsystembyzabava.demo.jpaRepositorys.ChatJpaRepository;
-import com.reportsystembyzabava.demo.jpaRepositorys.FileJpaRepository;
-import com.reportsystembyzabava.demo.jpaRepositorys.UserJpaRepository;
-import com.reportsystembyzabava.demo.servise.fileHandler.FileHash;
+import com.reportSystemByZabavaApplication.demo.entity.File;
+import com.reportSystemByZabavaApplication.demo.jpaRepositorys.ChatJpaRepository;
+import com.reportSystemByZabavaApplication.demo.jpaRepositorys.FileJpaRepository;
+import com.reportSystemByZabavaApplication.demo.jpaRepositorys.UserJpaRepository;
+import com.reportSystemByZabavaApplication.demo.servise.fileGetHashSum.FileHash;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.dao.DataIntegrityViolationException;

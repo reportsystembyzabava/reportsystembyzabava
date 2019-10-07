@@ -1,4 +1,4 @@
-package com.reportsystembyzabava.demo.entity;
+package com.reportSystemByZabavaApplication.demo.entity;
 
 import javax.persistence.*;
 
