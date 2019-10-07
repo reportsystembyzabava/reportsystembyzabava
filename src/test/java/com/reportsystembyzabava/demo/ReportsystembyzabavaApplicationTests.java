@@ -8,15 +8,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @SpringBootTest
 class ReportsystembyzabavaApplicationTests {
 
-    @Test
-    void contextLoads() {
-
-    }
-
-    @Test
-    void test() {
-        assertEquals(0, 0);
-    }
+//    @Test
+//    void contextLoads() {
+//
+//    }
+//
+//    @Test
+//    void test() {
+//        assertEquals(0, 0);
+//    }
 
 
 }
