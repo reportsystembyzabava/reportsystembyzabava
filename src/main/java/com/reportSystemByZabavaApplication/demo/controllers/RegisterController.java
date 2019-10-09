@@ -4,6 +4,8 @@ import com.reportSystemByZabavaApplication.demo.entity.User;
 import com.reportSystemByZabavaApplication.demo.entity.userExtraData.Confirmation;
 import com.reportSystemByZabavaApplication.demo.jpaRepositorys.ConfirmationJpnRepository;
 import com.reportSystemByZabavaApplication.demo.jpaRepositorys.UserJpaRepository;
+import com.reportSystemByZabavaApplication.demo.servise.jsonClasses.JSONBuilder;
+import com.reportSystemByZabavaApplication.demo.servise.jsonClasses.mailJSON;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.mail.SimpleMailMessage;
@@ -45,17 +47,35 @@ public class RegisterController {
             user.setConfirm(confirmationJpnRepository.save(new Confirmation()).setSuccess(false).setDataSentEMail(new Date().toString()))
                     .getConfirm().setCode(sentEMail(user.geteMail(), "test", "test", codeGen()));
             user.setUserType(User.UserType.Student);
-            userJpaRepository.save(user);
+            if (user.getUserToken() == null) {
+                user.setUserToken(String.valueOf(user.hashCode()));
+                userJpaRepository.save(user);
+                return JSONBuilder.create().add("status", "true").add("userToken",
+                        user.getUserToken()).get();
+            } else {
+
+                return JSONBuilder.create().add("status", "true").get();
+            }
         } catch (DataIntegrityViolationException e) {
-            return "{\n\"result\":\"false\" \n\"exception\":\""+e.getMessage()+"\"\n}";
+            return JSONBuilder.create().add("status", "false")
+                    .add("error", "email is already in use").get();
         }
-        return "{\n\"result\":\"true\"\n}";
     }
 
-    @RequestMapping(value = "/end", method = RequestMethod.POST)
-    public String registerStepTwo(@RequestBody String string) {
-        System.out.println(string);
-        return "test:test";
+    @RequestMapping(value = "/mail", method = RequestMethod.POST)
+    public String registerStepTwo(@RequestBody mailJSON json) {
+        User user = userJpaRepository.findByUserToken(json.getUserToken());
+        if (user == null) {
+            return JSONBuilder.create().add("status", "false")
+                    .add("error", "no such user").get();
+        }
+        if (user.getConfirm().getCode().equals(json.getCode())) {
+            user.getConfirm().setSuccess(true).setCode(new Date().toString());
+            userJpaRepository.save(user);
+            return JSONBuilder.create().add("status", "true").get();
+        }
+        return JSONBuilder.create().add("status", "false")
+                .add("error", "wrong code").get();
     }
 
     private String sentEMail(String eMail, String subject, String text, String code) {
@@ -68,6 +88,12 @@ public class RegisterController {
     }
 
     private String codeGen() {
-        return String.valueOf(new Random().nextInt(9999));
+        int code = 0;
+        while (code < 1000) {
+            code = new Random().nextInt(9999);
+        }
+        return String.valueOf(code);
     }
+
+
 }

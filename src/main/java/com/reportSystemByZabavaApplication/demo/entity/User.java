@@ -15,6 +15,7 @@ public class User {
 
     private String userName;
     private String userSurname;
+    private String userToken;
     @Column(unique = true)
     private String eMail;
     private String password;
@@ -129,6 +130,15 @@ public class User {
 
     public User setUserType(UserType userType) {
         this.userType = userType;
+        return this;
+    }
+
+    public String getUserToken() {
+        return userToken;
+    }
+
+    public User setUserToken(String userToken) {
+        this.userToken = userToken;
         return this;
     }
 
