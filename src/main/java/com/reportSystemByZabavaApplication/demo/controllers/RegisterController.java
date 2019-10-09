@@ -83,7 +83,7 @@ public class RegisterController {
         message.setTo(eMail);
         message.setSubject(subject);
         message.setText(text + " " + code);
-        this.javaMailSender.send(message);
+        //this.javaMailSender.send(message);
         return code;
     }
 
