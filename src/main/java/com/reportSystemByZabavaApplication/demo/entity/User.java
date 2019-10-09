@@ -1,12 +1,14 @@
 package com.reportSystemByZabavaApplication.demo.entity;
 
+import com.reportSystemByZabavaApplication.demo.entity.userExtraData.Confirmation;
+
 import javax.persistence.*;
 
 @Entity
 @Table(name = "usersgdfgdfgdf_table")
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String userName;
@@ -16,15 +18,11 @@ public class User {
     private String city;
     private String course;
     private String groupName;
-//    @OneToOne
-//    private Confirmation confirm;
+    @OneToOne
+    private Confirmation confirm;
 
-   // private UserType userType;
+    private UserType userType;
 
-//
-//    {
-//        confirm = new Confirmation();
-//    }
 
     public User() {
 
@@ -102,9 +100,34 @@ public class User {
         return this;
     }
 
+    public String getGroupName() {
+        return groupName;
+    }
 
+    public User setGroupName(String groupName) {
+        this.groupName = groupName;
+        return this;
+    }
 
-    enum UserType {
+    public Confirmation getConfirm() {
+        return confirm;
+    }
+
+    public User setConfirm(Confirmation confirm) {
+        this.confirm = confirm;
+        return this;
+    }
+
+    public UserType getUserType() {
+        return userType;
+    }
+
+    public User setUserType(UserType userType) {
+        this.userType = userType;
+        return this;
+    }
+
+    public enum UserType {
         Admin, Student, Teacher
     }
 
