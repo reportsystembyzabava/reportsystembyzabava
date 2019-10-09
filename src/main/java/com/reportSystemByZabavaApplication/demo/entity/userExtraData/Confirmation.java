@@ -1,7 +1,5 @@
 package com.reportSystemByZabavaApplication.demo.entity.userExtraData;
 
-import com.reportSystemByZabavaApplication.demo.entity.User;
-
 import javax.persistence.*;
 
 /**
@@ -9,15 +7,16 @@ import javax.persistence.*;
  */
 
 @Entity
+@Table(schema = "public")
 public class Confirmation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "confirm_id")
     private Long id;
     private boolean success;
     private String code;
     private String dataSentEMail;
-    @OneToOne
-    private User user;
+
 
     public Confirmation() {
     }
@@ -58,13 +57,4 @@ public class Confirmation {
         return this;
     }
 
-    @Override
-    public String toString() {
-        return "Confirmation{" +
-                "id=" + id +
-                ", success=" + success +
-                ", code='" + code + '\'' +
-                ", dataSentEMail='" + dataSentEMail + '\'' +
-                '}';
-    }
 }

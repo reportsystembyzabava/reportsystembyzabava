@@ -5,20 +5,25 @@ import com.reportSystemByZabavaApplication.demo.entity.userExtraData.Confirmatio
 import javax.persistence.*;
 
 @Entity
-@Table(name = "usersgdfgdfgdf_table")
+@Table(name = "users_table", schema = "public")
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id")
     private Long id;
 
     private String userName;
     private String userSurname;
+    @Column(unique = true)
     private String eMail;
     private String password;
     private String city;
     private String course;
     private String groupName;
-    @OneToOne
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "confirm_id")
     private Confirmation confirm;
 
     private UserType userType;

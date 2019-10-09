@@ -5,6 +5,7 @@ import com.reportSystemByZabavaApplication.demo.entity.userExtraData.Confirmatio
 import com.reportSystemByZabavaApplication.demo.jpaRepositorys.ConfirmationJpnRepository;
 import com.reportSystemByZabavaApplication.demo.jpaRepositorys.UserJpaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Random;
 
@@ -21,7 +21,7 @@ import java.util.Random;
  */
 
 @RestController
-//@RequestMapping(name = "register")
+@RequestMapping(value = "/register")
 public class RegisterController {
     private ConfirmationJpnRepository confirmationJpnRepository;
     private UserJpaRepository userJpaRepository;
@@ -40,17 +40,21 @@ public class RegisterController {
 
     @RequestMapping(value = "/start", method = RequestMethod.POST)
     public String registerStepOne(@RequestBody User user) {
-        userJpaRepository.save(user);
-        user.setConfirm(confirmationJpnRepository.save(new Confirmation()).setSuccess(false).setDataSentEMail(new Date().toString()))
-                .getConfirm().setCode(sentEMail(user.geteMail(), "test", "test", codeGen()));
-        user.setUserType(User.UserType.Student);
-        userJpaRepository.save(user);
-        return "test:test";
+        try {
+            userJpaRepository.save(user);
+            user.setConfirm(confirmationJpnRepository.save(new Confirmation()).setSuccess(false).setDataSentEMail(new Date().toString()))
+                    .getConfirm().setCode(sentEMail(user.geteMail(), "test", "test", codeGen()));
+            user.setUserType(User.UserType.Student);
+            userJpaRepository.save(user);
+        } catch (DataIntegrityViolationException e) {
+            return "{\n\"result\":\"false\" \n\"exception\":\""+e.getMessage()+"\"\n}";
+        }
+        return "{\n\"result\":\"true\"\n}";
     }
 
     @RequestMapping(value = "/end", method = RequestMethod.POST)
     public String registerStepTwo(@RequestBody String string) {
-
+        System.out.println(string);
         return "test:test";
     }
 
