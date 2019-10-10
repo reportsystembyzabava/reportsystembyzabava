@@ -7,6 +7,8 @@ import com.reportSystemByZabavaApplication.demo.jpaRepositorys.UserJpaRepository
 import com.reportSystemByZabavaApplication.demo.servise.fileGetHashSum.Hash;
 import com.reportSystemByZabavaApplication.demo.servise.jsonClasses.JSONBuilder;
 import com.reportSystemByZabavaApplication.demo.servise.jsonClasses.containers.MailJSON;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.mail.SimpleMailMessage;
@@ -26,6 +28,8 @@ import java.util.Random;
 @RestController
 @RequestMapping(value = "/register")
 public class RegisterController {
+    private final static Long waitingForCode = 600000l;
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
     private ConfirmationJpnRepository confirmationJpnRepository;
     private UserJpaRepository userJpaRepository;
     private JavaMailSender javaMailSender;
@@ -46,7 +50,7 @@ public class RegisterController {
     String registerStepOne(@RequestBody User user) {
         try {
             userJpaRepository.save(user);
-            user.setConfirm(confirmationJpnRepository.save(new Confirmation()).setSuccess(false).setDataSentEMail(new Date().toString()))
+            user.setConfirm(confirmationJpnRepository.save(new Confirmation()).setSuccess(false).setDataSentEMail(new Date()))
                     .getConfirm().setCode(sentEMail(user.geteMail(), "test", "test", codeGen()));
             user.setUserType(User.UserType.Student);
             if (user.getUserToken() == null) {
@@ -74,10 +78,18 @@ public class RegisterController {
             return JSONBuilder.create().add("status", "false")
                     .add("error", "no such user").get();
         }
-        if (user.getConfirm().getCode().equals(json.getCode())) {
-            user.getConfirm().setSuccess(true).setCode(new Date().toString());
-            userJpaRepository.save(user);
-            return JSONBuilder.create().add("status", "true").get();
+        System.out.println(user.getConfirm().getDataSentEMail().toString());
+        System.out.println(new Date().toString());
+        System.out.println(new Date().getTime() - user.getConfirm().getDataSentEMail().getTime());
+        if ((new Date().getTime() - user.getConfirm().getDataSentEMail().getTime()) < waitingForCode) {
+            if (user.getConfirm().getCode().equals(json.getCode())) {
+                user.getConfirm().setSuccess(true).setCode(new Date().toString());
+                userJpaRepository.save(user);
+                return JSONBuilder.create().add("status", "true").get();
+            }
+        } else {
+            return JSONBuilder.create().add("status", "false")
+                    .add("error", "code life time is over").get();
         }
         return JSONBuilder.create().add("status", "false")
                 .add("error", "wrong code").get();

@@ -1,6 +1,8 @@
 package com.reportSystemByZabavaApplication.demo.entity.userExtraData;
 
 import javax.persistence.*;
+import java.util.Date;
+import java.util.Objects;
 
 /**
  * Created by Thealeshka on 09.10.2019 inside the package - com.reportSystemByZabavaApplication.demo.entity.userExtraData
@@ -15,7 +17,7 @@ public class Confirmation {
     private Long id;
     private boolean success;
     private String code;
-    private String dataSentEMail;
+    private Date dataSentEMail;
 
 
     public Confirmation() {
@@ -48,13 +50,38 @@ public class Confirmation {
         return this;
     }
 
-    public String getDataSentEMail() {
+    public Date getDataSentEMail() {
         return dataSentEMail;
     }
 
-    public Confirmation setDataSentEMail(String dataSentEMail) {
+    public Confirmation setDataSentEMail(Date dataSentEMail) {
         this.dataSentEMail = dataSentEMail;
         return this;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Confirmation that = (Confirmation) o;
+        return success == that.success &&
+                Objects.equals(id, that.id) &&
+                Objects.equals(code, that.code) &&
+                Objects.equals(dataSentEMail, that.dataSentEMail);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, success, code, dataSentEMail);
+    }
+
+    @Override
+    public String toString() {
+        return "Confirmation{" +
+                "id=" + id +
+                ", success=" + success +
+                ", code='" + code + '\'' +
+                ", dataSentEMail=" + dataSentEMail.toString() +
+                '}';
+    }
 }
