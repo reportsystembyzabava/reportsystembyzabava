@@ -4,17 +4,18 @@ import com.reportSystemByZabavaApplication.demo.entity.User;
 import com.reportSystemByZabavaApplication.demo.entity.userExtraData.Confirmation;
 import com.reportSystemByZabavaApplication.demo.jpaRepositorys.ConfirmationJpnRepository;
 import com.reportSystemByZabavaApplication.demo.jpaRepositorys.UserJpaRepository;
+import com.reportSystemByZabavaApplication.demo.servise.fileGetHashSum.Hash;
 import com.reportSystemByZabavaApplication.demo.servise.jsonClasses.JSONBuilder;
-import com.reportSystemByZabavaApplication.demo.servise.jsonClasses.mailJSON;
+import com.reportSystemByZabavaApplication.demo.servise.jsonClasses.containers.MailJSON;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.Random;
 
@@ -41,29 +42,33 @@ public class RegisterController {
     }
 
     @RequestMapping(value = "/start", method = RequestMethod.POST)
-    public String registerStepOne(@RequestBody User user) {
+    public @ResponseBody
+    String registerStepOne(@RequestBody User user) {
         try {
             userJpaRepository.save(user);
             user.setConfirm(confirmationJpnRepository.save(new Confirmation()).setSuccess(false).setDataSentEMail(new Date().toString()))
                     .getConfirm().setCode(sentEMail(user.geteMail(), "test", "test", codeGen()));
             user.setUserType(User.UserType.Student);
             if (user.getUserToken() == null) {
-                user.setUserToken(String.valueOf(user.hashCode()));
+                user.setUserToken(Hash.checkSum(user.toString(), MessageDigest.getInstance("SHA-256")));
                 userJpaRepository.save(user);
                 return JSONBuilder.create().add("status", "true").add("userToken",
                         user.getUserToken()).get();
             } else {
-
                 return JSONBuilder.create().add("status", "true").get();
             }
         } catch (DataIntegrityViolationException e) {
             return JSONBuilder.create().add("status", "false")
                     .add("error", "email is already in use").get();
+        } catch (IOException | NoSuchAlgorithmException e) {
+            return JSONBuilder.create().add("status", "false")
+                    .add("error", "server exception").get();
         }
     }
 
     @RequestMapping(value = "/mail", method = RequestMethod.POST)
-    public String registerStepTwo(@RequestBody mailJSON json) {
+    public @ResponseBody
+    String registerStepTwo(@RequestBody MailJSON json) {
         User user = userJpaRepository.findByUserToken(json.getUserToken());
         if (user == null) {
             return JSONBuilder.create().add("status", "false")

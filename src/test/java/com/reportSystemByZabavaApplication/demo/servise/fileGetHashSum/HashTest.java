@@ -3,7 +3,7 @@ package com.reportSystemByZabavaApplication.demo.servise.fileGetHashSum;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class FileHashTest {
+class HashTest {
 
     @BeforeEach
     void setUp() {
