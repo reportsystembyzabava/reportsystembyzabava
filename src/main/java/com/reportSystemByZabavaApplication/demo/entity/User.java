@@ -22,6 +22,7 @@ public class User {
     private String city;
     private String course;
     private String groupName;
+    private Language language;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "confirm_id")
@@ -128,8 +129,8 @@ public class User {
         return userType;
     }
 
-    public User setUserType(UserType userType) {
-        this.userType = userType;
+    public User setUserType(String userType) {
+        this.userType = UserType.witch(userType);
         return this;
     }
 
@@ -142,8 +143,46 @@ public class User {
         return this;
     }
 
+    public Language getLanguage() {
+        return language;
+    }
+
+    public User setLanguage(String language) {
+        this.language = Language.witch(language);
+        return this;
+    }
+
     public enum UserType {
-        Admin, Student, Teacher
+        Admin, Student, Teacher;
+
+        public static UserType getDefault() {
+            return Student;
+        }
+
+        public static UserType witch(String value) {
+            try {
+                return UserType.valueOf(value);
+            } catch (IllegalArgumentException e) {
+                return getDefault();
+            }
+        }
+    }
+
+    public enum Language {
+        RU, UA, ENG;
+
+        public static Language getDefault() {
+            return UA;
+        }
+
+        public static Language witch(String value) {
+            try {
+                return Language.valueOf(value);
+            } catch (IllegalArgumentException e) {
+                return getDefault();
+            }
+        }
+
     }
 
 }

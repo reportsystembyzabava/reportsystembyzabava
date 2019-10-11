@@ -4,13 +4,14 @@ import com.reportSystemByZabavaApplication.demo.entity.User;
 import com.reportSystemByZabavaApplication.demo.entity.userExtraData.Confirmation;
 import com.reportSystemByZabavaApplication.demo.jpaRepositorys.ConfirmationJpnRepository;
 import com.reportSystemByZabavaApplication.demo.jpaRepositorys.UserJpaRepository;
-import com.reportSystemByZabavaApplication.demo.servise.fileGetHashSum.Hash;
+import com.reportSystemByZabavaApplication.demo.servise.getHashSum.Hash;
 import com.reportSystemByZabavaApplication.demo.servise.jsonClasses.JSONBuilder;
 import com.reportSystemByZabavaApplication.demo.servise.jsonClasses.containers.MailJSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.web.bind.annotation.*;
@@ -53,7 +54,7 @@ public class RegisterController {
             userJpaRepository.save(user);
             user.setConfirm(confirmationJpnRepository.save(new Confirmation()).setSuccess(false).setDataSentEMail(new Date()))
                     .getConfirm().setCode(sentEMail(user.geteMail(), "test", "test", codeGen()));
-            user.setUserType(User.UserType.Student);
+            user.setUserType("Student");
             if (user.getUserToken() == null) {
                 user.setUserToken(Hash.checkSum(user.toString(), MessageDigest.getInstance("SHA-256")));
                 userJpaRepository.save(user);
@@ -107,9 +108,14 @@ public class RegisterController {
         message.setTo(eMail);
         message.setSubject(subject);
         message.setText(text + " " + code);
-        logger.info("activation code sent to user " + eMail);
-        //this.javaMailSender.send(message);
-        return code;
+        try {
+            //this.javaMailSender.send(message);
+            logger.info("activation code sent to user " + eMail);
+            return code;
+        } catch (MailException e) {
+            logger.warn(e.getMessage());
+            return "0000";
+        }
     }
 
     private String codeGen() {
@@ -119,6 +125,15 @@ public class RegisterController {
         }
         return String.valueOf(code);
     }
+
+//    private String generateText(User.Language language) {
+//        try {
+//            return Files.readString(Paths.get("data/" + language + "/textEmail.txt"));
+//        } catch (IOException e) {
+//            logger.warn(e.getMessage());
+//        }
+//        return "null";
+//    }
 
 
 }

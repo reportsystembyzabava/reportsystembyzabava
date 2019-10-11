@@ -1,4 +1,4 @@
-package com.reportSystemByZabavaApplication.demo.servise.fileGetHashSum;
+package com.reportSystemByZabavaApplication.demo.servise.getHashSum;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
