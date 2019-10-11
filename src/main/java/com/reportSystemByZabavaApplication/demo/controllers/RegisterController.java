@@ -48,6 +48,7 @@ public class RegisterController {
     @RequestMapping(value = "/start", method = RequestMethod.POST)
     public @ResponseBody
     String registerStepOne(@RequestBody User user) {
+        logger.info("user wanna register " + user.geteMail());
         try {
             userJpaRepository.save(user);
             user.setConfirm(confirmationJpnRepository.save(new Confirmation()).setSuccess(false).setDataSentEMail(new Date()))
@@ -56,15 +57,19 @@ public class RegisterController {
             if (user.getUserToken() == null) {
                 user.setUserToken(Hash.checkSum(user.toString(), MessageDigest.getInstance("SHA-256")));
                 userJpaRepository.save(user);
+                logger.info("user register ok, token generate");
                 return JSONBuilder.create().add("status", "true").add("userToken",
                         user.getUserToken()).get();
             } else {
+                logger.info("user register ok");
                 return JSONBuilder.create().add("status", "true").get();
             }
         } catch (DataIntegrityViolationException e) {
+            logger.info("user register false, email already used");
             return JSONBuilder.create().add("status", "false")
                     .add("error", "email is already in use").get();
         } catch (IOException | NoSuchAlgorithmException e) {
+            logger.warn(e.getMessage());
             return JSONBuilder.create().add("status", "false")
                     .add("error", "server exception").get();
         }
@@ -75,22 +80,24 @@ public class RegisterController {
     String registerStepTwo(@RequestBody MailJSON json) {
         User user = userJpaRepository.findByUserToken(json.getUserToken());
         if (user == null) {
+            logger.warn("unknown user sent activation code");
             return JSONBuilder.create().add("status", "false")
                     .add("error", "no such user").get();
         }
-        System.out.println(user.getConfirm().getDataSentEMail().toString());
-        System.out.println(new Date().toString());
-        System.out.println(new Date().getTime() - user.getConfirm().getDataSentEMail().getTime());
+        logger.info("user " + user.geteMail() + " try activate account");
         if ((new Date().getTime() - user.getConfirm().getDataSentEMail().getTime()) < waitingForCode) {
             if (user.getConfirm().getCode().equals(json.getCode())) {
                 user.getConfirm().setSuccess(true).setCode(new Date().toString());
                 userJpaRepository.save(user);
+                logger.info("user " + user.geteMail() + " activation completed success");
                 return JSONBuilder.create().add("status", "true").get();
             }
         } else {
+            logger.info("user " + user.geteMail() + " activation code life time is over");
             return JSONBuilder.create().add("status", "false")
                     .add("error", "code life time is over").get();
         }
+        logger.info("user " + user.geteMail() + " wrong activation code");
         return JSONBuilder.create().add("status", "false")
                 .add("error", "wrong code").get();
     }
@@ -100,6 +107,7 @@ public class RegisterController {
         message.setTo(eMail);
         message.setSubject(subject);
         message.setText(text + " " + code);
+        logger.info("activation code sent to user " + eMail);
         //this.javaMailSender.send(message);
         return code;
     }
