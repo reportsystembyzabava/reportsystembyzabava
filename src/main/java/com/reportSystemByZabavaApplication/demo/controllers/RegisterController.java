@@ -10,17 +10,24 @@ import com.reportSystemByZabavaApplication.demo.servise.jsonClasses.containers.M
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.mail.MailException;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.web.bind.annotation.*;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by Thealeshka on 09.10.2019 inside the package - com.reportSystemByZabavaApplication.demo.controllers
@@ -53,7 +60,8 @@ public class RegisterController {
         try {
             userJpaRepository.save(user);
             user.setConfirm(confirmationJpnRepository.save(new Confirmation()).setSuccess(false).setDataSentEMail(new Date()))
-                    .getConfirm().setCode(sentEMail(user.geteMail(), "test", "test", codeGen()));
+                    .getConfirm().setCode(sentEMailCode(user.geteMail(), generateSubject(user.getLanguage()),
+                    replaceName(generateText(user.getLanguage(), "textEmailRegisterStart.txt"), user.getUserName(), user.getLanguage())));
             user.setUserType("Student");
             if (user.getUserToken() == null) {
                 user.setUserToken(Hash.checkSum(user.toString(), MessageDigest.getInstance("SHA-256")));
@@ -91,6 +99,8 @@ public class RegisterController {
                 user.getConfirm().setSuccess(true).setCode(new Date().toString());
                 userJpaRepository.save(user);
                 logger.info("user " + user.geteMail() + " activation completed success");
+                sentEMailStepTwo(user.geteMail(), generateSubject(user.getLanguage()), generateText(user.getLanguage(),
+                        "subjectEmailRegisterFinish.txt"), sendFile(user.getLanguage()));
                 return JSONBuilder.create().add("status", "true").get();
             }
         } else {
@@ -103,19 +113,27 @@ public class RegisterController {
                 .add("error", "wrong code").get();
     }
 
-    private String sentEMail(String eMail, String subject, String text, String code) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(eMail);
-        message.setSubject(subject);
-        message.setText(text + " " + code);
+    private void sentEMail(String eMail, String subject, String text) {
+        MimeMessage message = javaMailSender.createMimeMessage();
         try {
-            //this.javaMailSender.send(message);
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            helper.setTo(eMail);
+            helper.setSubject(subject);
+            helper.setText(text);
+            javaMailSender.send(message);
             logger.info("activation code sent to user " + eMail);
-            return code;
         } catch (MailException e) {
             logger.warn(e.getMessage());
-            return "0000";
+        } catch (MessagingException e) {
+            e.printStackTrace();
         }
+    }
+
+    private String sentEMailCode(String eMail, String subject, String text) {
+        sentEMail(eMail, subject, text);
+        Matcher matcher = Pattern.compile("[0-9][0-9][0-9][0-9]").matcher(text);
+        matcher.find();
+        return matcher.group();
     }
 
     private String codeGen() {
@@ -126,14 +144,72 @@ public class RegisterController {
         return String.valueOf(code);
     }
 
-//    private String generateText(User.Language language) {
-//        try {
-//            return Files.readString(Paths.get("data/" + language + "/textEmail.txt"));
-//        } catch (IOException e) {
-//            logger.warn(e.getMessage());
-//        }
-//        return "null";
-//    }
+    private String generateText(User.Language language, String fileURL) {
+        try {
+            StringBuilder result = new StringBuilder();
+            Files.readAllLines(Paths.get("data/" + language + "/" + fileURL)).forEach(n -> result.append(n + "\n"));
+            try {
+                result.replace(result.indexOf("*+|+*"), "*+|+*".length() + result.indexOf("*+|+*"), "\n" + codeGen());
+            } catch (StringIndexOutOfBoundsException e) {
+            }
+            logger.info("text generate OK");
+            return result.toString();
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+        }
+        return "Sorry we have technical problems";
+    }
+
+    private String generateSubject(User.Language language) {
+        try {
+            StringBuilder result = new StringBuilder();
+            Files.readAllLines(Paths.get("data/" + language + "/subjectEmailRegisterStart.txt")).forEach(n -> result.append(n));
+            logger.info("subject generate OK");
+            return result.toString();
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+        }
+        return "Sorry we have technical problems";
+    }
+
+    private void sentEMailStepTwo(String eMail, String subject, String text, ByteArrayResource resource) {
+        MimeMessage message = javaMailSender.createMimeMessage();
+        try {
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            helper.setTo(eMail);
+            helper.setSubject(subject);
+            helper.setText(text);
+            helper.addAttachment("Test.pdf", resource);
+            javaMailSender.send(message);
+            logger.info("activation code sent to user " + eMail);
+        } catch (MailException e) {
+            logger.warn(e.getMessage());
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String replaceName(String text, String name, User.Language language) {
+        switch (language) {
+            case RU:
+                return text.replaceAll("друг", name);
+            case ENG:
+                return text.replaceAll("friend", name);
+            case UA:
+                return text.replaceAll("друже", name);
+            default:
+                return text;
+        }
+    }
+
+    private ByteArrayResource sendFile(User.Language language) {
+        try {
+            return new ByteArrayResource(Files.readAllBytes(Paths.get("data/" + language + "/" + "Bonus.pdf")));
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+            return new ByteArrayResource("".getBytes());
+        }
+    }
 
 
 }
