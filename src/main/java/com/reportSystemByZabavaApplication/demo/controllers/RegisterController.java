@@ -179,7 +179,7 @@ public class RegisterController {
             helper.setTo(eMail);
             helper.setSubject(subject);
             helper.setText(text);
-            helper.addAttachment("Test.pdf", resource);
+            helper.addAttachment("Your_bonus.pdf", resource);
             javaMailSender.send(message);
             logger.info("activation code sent to user " + eMail);
         } catch (MailException e) {
