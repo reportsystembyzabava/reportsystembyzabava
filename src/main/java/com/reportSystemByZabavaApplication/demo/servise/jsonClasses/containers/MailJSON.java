@@ -1,22 +1,22 @@
-package com.reportSystemByZabavaApplication.demo.servise.jsonClasses;
+package com.reportSystemByZabavaApplication.demo.servise.jsonClasses.containers;
 
-public class mailJSON{
+public class MailJSON {
         private String code;
         private String userToken;
 
-        public mailJSON(String code, String userToken) {
+        public MailJSON(String code, String userToken) {
             this.code = code;
             this.userToken = userToken;
         }
 
-        public mailJSON() {
+        public MailJSON() {
         }
 
         public String getCode() {
             return code;
         }
 
-        public mailJSON setCode(String code) {
+        public MailJSON setCode(String code) {
             this.code = code;
             return this;
         }
@@ -25,7 +25,7 @@ public class mailJSON{
             return userToken;
         }
 
-        public mailJSON setUserToken(String userToken) {
+        public MailJSON setUserToken(String userToken) {
             this.userToken = userToken;
             return this;
         }

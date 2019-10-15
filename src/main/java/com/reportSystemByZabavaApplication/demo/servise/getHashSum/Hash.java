@@ -1,17 +1,14 @@
-package com.reportSystemByZabavaApplication.demo.servise.fileGetHashSum;
+package com.reportSystemByZabavaApplication.demo.servise.getHashSum;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 
-public final class FileHash {
+public final class Hash {
 
     public static String checkSum(MultipartFile file, MessageDigest md) throws IOException {
         return checkSumIn(file.getInputStream(), md);
@@ -27,6 +24,10 @@ public final class FileHash {
 
     public static String checkSum(File file) throws IOException, NoSuchAlgorithmException {
         return checkSumIn(new FileInputStream(file), MessageDigest.getInstance("SHA-256"));
+    }
+
+    public static String checkSum(String string, MessageDigest md) throws IOException {
+        return checkSumIn(new ByteArrayInputStream(string.getBytes()), md);
     }
 
     private static String checkSumIn(InputStream inputStream, MessageDigest messageDigest) {
