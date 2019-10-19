@@ -29,4 +29,12 @@ public class MailJSON {
             this.userToken = userToken;
             return this;
         }
+
+    @Override
+    public String toString() {
+        return "MailJSON{" +
+                "code='" + code + '\'' +
+                ", userToken='" + userToken + '\'' +
+                '}';
     }
+}

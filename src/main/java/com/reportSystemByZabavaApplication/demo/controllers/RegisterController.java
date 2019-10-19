@@ -2,7 +2,7 @@ package com.reportSystemByZabavaApplication.demo.controllers;
 
 import com.reportSystemByZabavaApplication.demo.entity.User;
 import com.reportSystemByZabavaApplication.demo.entity.userExtraData.Confirmation;
-import com.reportSystemByZabavaApplication.demo.jpaRepositorys.ConfirmationJpnRepository;
+import com.reportSystemByZabavaApplication.demo.jpaRepositorys.ConfirmationJpaRepository;
 import com.reportSystemByZabavaApplication.demo.jpaRepositorys.UserJpaRepository;
 import com.reportSystemByZabavaApplication.demo.servise.getHashSum.Hash;
 import com.reportSystemByZabavaApplication.demo.servise.jsonClasses.JSONBuilder;
@@ -25,6 +25,7 @@ import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -36,15 +37,15 @@ import java.util.regex.Pattern;
 @RestController
 @RequestMapping(value = "/register")
 public class RegisterController {
-    private final static Long waitingForCode = 600000l;
+    private final static Long waitingForCode = 600000L;
     private Logger logger = LoggerFactory.getLogger(this.getClass());
-    private ConfirmationJpnRepository confirmationJpnRepository;
+    private ConfirmationJpaRepository confirmationJpaRepository;
     private UserJpaRepository userJpaRepository;
     private JavaMailSender javaMailSender;
 
     @Autowired
-    public RegisterController(ConfirmationJpnRepository confirmationJpnRepository, UserJpaRepository userJpaRepository, JavaMailSender javaMailSender) {
-        this.confirmationJpnRepository = confirmationJpnRepository;
+    public RegisterController(ConfirmationJpaRepository ConfirmationJpaRepository, UserJpaRepository userJpaRepository, JavaMailSender javaMailSender) {
+        this.confirmationJpaRepository = ConfirmationJpaRepository;
         this.userJpaRepository = userJpaRepository;
         this.javaMailSender = javaMailSender;
     }
@@ -53,13 +54,26 @@ public class RegisterController {
     public RegisterController() {
     }
 
+    public List<User> get(){
+        return userJpaRepository.findAll();
+    }
+
+
+    /**
+     * @param user in Json from client
+     * @return result of creating new account
+     */
     @RequestMapping(value = "/start", method = RequestMethod.POST)
     public @ResponseBody
     String registerStepOne(@RequestBody User user) {
+        if (user == null) {
+            return JSONBuilder.create().add("status", "false").add("error", "get null").get();
+        }
+        String result;
         logger.info("user wanna register " + user.geteMail());
         try {
             userJpaRepository.save(user);
-            user.setConfirm(confirmationJpnRepository.save(new Confirmation()).setSuccess(false).setDataSentEMail(new Date()))
+            user.setConfirm(confirmationJpaRepository.save(new Confirmation()).setSuccess(false).setDataSentEMail(new Date()))
                     .getConfirm().setCode(sentEMailCode(user.geteMail(), generateSubject(user.getLanguage()),
                     replaceName(generateText(user.getLanguage(), "textEmailRegisterStart.txt"), user.getUserName(), user.getLanguage())));
             user.setUserType("Student");
@@ -67,21 +81,22 @@ public class RegisterController {
                 user.setUserToken(Hash.checkSum(user.toString(), MessageDigest.getInstance("SHA-256")));
                 userJpaRepository.save(user);
                 logger.info("user register ok, token generate");
-                return JSONBuilder.create().add("status", "true").add("userToken",
+                result = JSONBuilder.create().add("status", "true").add("userToken",
                         user.getUserToken()).get();
             } else {
                 logger.info("user register ok");
-                return JSONBuilder.create().add("status", "true").get();
+                result = JSONBuilder.create().add("status", "true").get();
             }
         } catch (DataIntegrityViolationException e) {
             logger.info("user register false, email already used");
-            return JSONBuilder.create().add("status", "false")
+            result = JSONBuilder.create().add("status", "false")
                     .add("error", "email is already in use").get();
         } catch (IOException | NoSuchAlgorithmException e) {
             logger.warn(e.getMessage());
-            return JSONBuilder.create().add("status", "false")
+            result = JSONBuilder.create().add("status", "false")
                     .add("error", "server exception").get();
         }
+        return result;
     }
 
     @RequestMapping(value = "/mail", method = RequestMethod.POST)
@@ -211,5 +226,12 @@ public class RegisterController {
         }
     }
 
-
+    @Override
+    public String toString() {
+        return "RegisterController{" +
+                "confirmationJpaRepository=" + confirmationJpaRepository +
+                ", userJpaRepository=" + userJpaRepository +
+                ", javaMailSender=" + javaMailSender +
+                '}';
+    }
 }

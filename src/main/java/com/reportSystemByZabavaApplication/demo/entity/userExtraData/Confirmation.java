@@ -77,6 +77,9 @@ public class Confirmation {
 
     @Override
     public String toString() {
+        if(dataSentEMail==null){
+            dataSentEMail=new Date();
+        }
         return "Confirmation{" +
                 "id=" + id +
                 ", success=" + success +

@@ -16,5 +16,6 @@ public class ReportSystemByZabavaApplication {
         logger.info("Application starting");
         SpringApplication.run(ReportSystemByZabavaApplication.class, args);
         logger.info("Application has been started");
+
     }
 }

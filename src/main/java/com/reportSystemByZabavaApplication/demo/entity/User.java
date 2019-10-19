@@ -10,7 +10,7 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
+    @Column(name = "user_id", unique = true)
     private Long id;
 
     private String userName;
@@ -24,7 +24,7 @@ public class User {
     private String groupName;
     private Language language;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "confirm_id")
     private Confirmation confirm;
 
@@ -185,4 +185,21 @@ public class User {
 
     }
 
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", userName='" + userName + '\'' +
+                ", userSurname='" + userSurname + '\'' +
+                ", userToken='" + userToken + '\'' +
+                ", eMail='" + eMail + '\'' +
+                ", password='" + password + '\'' +
+                ", city='" + city + '\'' +
+                ", course='" + course + '\'' +
+                ", groupName='" + groupName + '\'' +
+                ", language=" + language +
+                ", confirm=" + confirm +
+                ", userType=" + userType +
+                '}';
+    }
 }

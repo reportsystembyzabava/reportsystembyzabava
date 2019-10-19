@@ -29,11 +29,11 @@ public class JSONBuilder {
         return this;
     }
 
-    public JSONBuilder add(String key, String Value) {
+    public JSONBuilder add(String key, String value) {
         if (stringBuilder.toString().contains("\"")) {
             stringBuilder.append(",\n");
         }
-        stringBuilder.append("\"" + key + "\": \"" + Value + "\"");
+        stringBuilder.append("\"" + key + "\": \"" + value + "\"");
         return this;
     }
 
