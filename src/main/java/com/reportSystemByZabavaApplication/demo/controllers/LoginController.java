@@ -41,10 +41,9 @@ public class LoginController {
      * @param userLogin
      * @return
      */
-    @RequestMapping(value = "/", method = RequestMethod.PUT)
+    @RequestMapping(value = "/", method = RequestMethod.PUT, produces = "application/json; charset=utf-8")
     public @ResponseBody
-    String login(@RequestBody User userLogin, HttpServletResponse response) {
-        response.setContentType("application/json");
+    String login(@RequestBody User userLogin) {
         String result;
         logger.info("user login " + userLogin.geteMail());
         User user = userJpaRepository.findByeMail(userLogin.geteMail());
