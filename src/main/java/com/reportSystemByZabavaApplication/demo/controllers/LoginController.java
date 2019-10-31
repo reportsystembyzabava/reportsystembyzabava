@@ -8,8 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletResponse;
-
 /**
  * Created by Thealeshka on 10.10.2019 inside the package - com.reportSystemByZabavaApplication.demo.controllers
  */
@@ -31,9 +29,6 @@ public class LoginController {
         this.userJpaRepository = userJpaRepository;
     }
 
-    /**
-     *
-     */
     public LoginController() {
     }
 
