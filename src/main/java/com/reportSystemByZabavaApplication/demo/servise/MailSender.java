@@ -29,7 +29,7 @@ public class MailSender {
             helper.setTo(eMail);
             helper.setSubject(subject);
             helper.setText(text);
-            //javaMailSender.send(message);
+            javaMailSender.send(message);
             //logger.info("activation code sent to user " + eMail);
         } catch (MailException e) {
             //logger.warn(e.getMessage());
