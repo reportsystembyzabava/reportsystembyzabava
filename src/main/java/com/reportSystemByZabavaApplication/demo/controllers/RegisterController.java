@@ -33,7 +33,6 @@ import java.util.Date;
  */
 
 @RestController
-@RequestMapping(value = "/register")
 public class RegisterController {
     /**
      * Access code lifetime

@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+
 /**
  * Created by Thealeshka on 10.10.2019 inside the package - com.reportSystemByZabavaApplication.demo.controllers
  */
@@ -39,9 +41,10 @@ public class LoginController {
      * @param userLogin
      * @return
      */
-    @RequestMapping(value = "/login", method = RequestMethod.PUT)
+    @RequestMapping(value = "/", method = RequestMethod.PUT)
     public @ResponseBody
-    String login(@RequestBody User userLogin) {
+    String login(@RequestBody User userLogin, HttpServletResponse response) {
+        response.setContentType("application/json");
         String result;
         logger.info("user login " + userLogin.geteMail());
         User user = userJpaRepository.findByeMail(userLogin.geteMail());
