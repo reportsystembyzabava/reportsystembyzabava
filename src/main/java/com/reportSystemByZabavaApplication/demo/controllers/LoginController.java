@@ -39,7 +39,7 @@ public class LoginController {
      * @param userLogin
      * @return
      */
-    @RequestMapping(value = "/", method = RequestMethod.POST)
+    @RequestMapping(value = "/login", method = RequestMethod.PUT)
     public @ResponseBody
     String login(@RequestBody User userLogin) {
         String result;
@@ -50,7 +50,7 @@ public class LoginController {
             result = JSONBuilder.create().add("status", "false")
                     .add("error", "no such user").get();
         } else if (user.getConfirm().isSuccess()) {
-            if (user.getPassword().equals(user.getPassword())) {
+            if (userLogin.getPassword().equals(user.getPassword())) {
                 logger.info("login ok " + user.geteMail());
                 result = JSONBuilder.create().add("status", "true").add("userToken", user.getUserToken()).get();
             } else {
